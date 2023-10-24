@@ -1,0 +1,29 @@
+#Connect-AzAccount
+#Set-AzContext -Subscription ''   # This is the subscription ID that can be found under the subscriptions tab in the azure portal
+
+$resourcegroupname = ""   # The name you want your resource group to be
+$RGlocation = ""         # The location you want your resource group deployed
+$ServerLocation = ""     # The location you want your server deployed
+
+# Set an admin login and password for your server
+$adminlogin = ""
+$password = ""
+
+# Set server name - the logical server name has to be unique in the system
+$servername = ""
+
+# The ip address range that you want to allow to access your server
+$startip = ""
+$endip = ""
+
+# Create a resource group
+$resourcegroup = New-AzResourceGroup -Name $resourcegroupname -Location $RGlocation
+
+# Create a server with a system wide unique server name
+$server = New-AzSqlServer -ResourceGroupName $resourcegroupname -ServerName $servername -Location $ServerLocation-SqlAdministratorCredentials $(New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $adminlogin, $(ConvertTo-SecureString -String $password -AsPlainText -Force))
+
+# Create a server firewall rule that allows access from the specified IP range
+$serverfirewallrule = New-AzSqlServerFirewallRule -ResourceGroupName $resourcegroupname -ServerName $servername -FirewallRuleName "AllowedIPs" -StartIpAddress $startip -EndIpAddress $endip
+
+# Clean up deployment
+# Remove-azResourceGroup -ResourceGroupName $resourcegroupname
